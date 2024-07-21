@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Versus.js</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="./public/favicon.ico">
+    <style type="text/css">
+    	* {margin:0;padding:0;}
+    	ul {
+    		display: flex;
+    		list-style-type: none;
+    	}
+    	li {
+    		border:1px solid papayawhip;
+    		padding: 3px 10px;
+    		width: 80px;
+    		text-align: center;
+    	}
+    		li:hover {
+    			cursor:pointer;color: orangered;background-color: papayawhip;
+    		}
+    </style>
+</head>
+<body>
+<div contenteditable="plaintext-only" id="versus"> </div>
+<ul class="specials">
+	<li>&lt;Arrow Beam&gt;</li>
+	<li>&lt;Blue Laser&gt;</li>
+	<li>&lt;Guts Needle&gt;</li>
+	<li>&lt;Taro Fire&gt;</li>
+	<li>&lt;Beam Shuriken&gt;</li>
+	<li>()</li>
+</ul>
+<ul class="characters">
+	<li>&quot;Taro&quot;</li>
+	<li>&quot;Ace&quot;</li>
+	<li>&quot;Taiga&quot;</li>
+</ul>
+<script type="text/javascript">
+	let versus=document.getElementById('versus')
+	console.log(versus.outerHTML)
+	let be_insert=document.getElementsByTagName('li');
+	console.log(be_insert)
+	for (let i=0;i<be_insert.length;i++) {
+		be_insert.item(i).addEventListener('click',function(event){
+			E_itemClick(event,i)
+		});	
+	}
+
+	versus.addEventListener('click',E_versusClick);
+
+	let focusedRange;
+	function E_versusClick(event){
+		analyzeMotivation('versusClick');
+		focusedRange=window.getSelection().focusNode;
+
+		let range = new Range();
+
+		range.selectNodeContents(focusedRange.parentNode)
+		
+		console.log(focusedRange)
+		// window.getSelection().removeAllRanges();
+		// window.getSelection().addRange(range)
+	}
+	let motivationTracker=[];
+	function analyzeMotivation(action){
+
+		if (motivationTracker.length>1) {
+			motivationTracker.shift();
+		}		
+		motivationTracker.push(action)
+		
+		if (motivationTracker[0]===motivationTracker[1] && motivationTracker[0]==='versusClick'){
+			
+		}
+		if (motivationTracker[0]===motivationTracker[1] && motivationTracker[0]==='itemClick'){
+			focusedRange=lastInsertNode;
+		}
+		if (motivationTracker[0]!==motivationTracker[1] && motivationTracker[1]==='versusClick'){
+			
+		}
+		if (motivationTracker[0]!==motivationTracker[1] && motivationTracker[1]==='itemClick'){
+			
+		}
+
+
+		
+	}
+	let lastInsertNode;
+	function E_itemClick(event,index){
+		debugger
+		analyzeMotivation('itemClick');
+		console.log(event,index);
+		// let selection = window.getSelection();
+		let range = new Range();
+		// let rangeStart = getRangeStart();
+		// let rangeEnd = getRangeEnd();
+		// range.setStart(rangeStart.node,rangeStart.offset);
+		// range.setEnd(rangeEnd.node,rangeEnd.offset);	
+		let elemTag;
+		if (event.target.parentNode.className==='symbol') {
+			elemTag='i'
+		}
+		if (event.target.parentNode.className==='tags') {
+			elemTag='b'
+		}
+		let newNode=document.createElement(elemTag);
+		let newNodeText=event.target.textContent;
+		newNode.appendChild(document.createTextNode(newNodeText));
+debugger
+		if (focusedRange) {
+			if (focusedRange.nodeType===1) {
+				if (!focusedRange.nextElementSibling) {
+					range.selectNode(getRangeStart().node)
+				}else {
+					range.selectNode(focusedRange.nextElementSibling)
+				}
+			}else if(focusedRange.parentNode.nextElementSibling) {
+				range.selectNode(focusedRange.parentNode.nextElementSibling)
+			}else {
+				range.selectNode(getRangeStart().node)
+			}
+		}else {
+			range.selectNode(getRangeStart().node)
+		}
+		range.insertNode(newNode)	
+		lastInsertNode=newNode;
+		// selection.removeAllRanges()
+		// selection.addRange(range)
+		
+		versus.childNodes.forEach((item,index)=>{
+		    if (item.nodeType===3) {
+		        versus.removeChild(versus.childNodes[index])
+		    }
+		})
+		
+	}
+
+	function getRangeStart(){
+		let node;
+		if (!node) {
+			versus.appendChild(document.createTextNode(' '))
+			node=versus.lastChild;
+		}		
+		return {
+			node,
+			offset:0
+		}
+	}
+
+	function getRangeEnd(){
+		let node=versus.lastChild;
+		let offset;
+		if (!node) {
+			node=versus;
+		}else {
+			if (node.nodeType===1) {
+				offset=1;
+			}
+			else if (node.nodeType===3) {
+				offset=node.data.length
+			}else {
+				throw new Error('Unexpected node type');
+			}
+		}
+		return {
+			node,
+			offset
+		}
+	}
+</script>
+</body>
+</html>
